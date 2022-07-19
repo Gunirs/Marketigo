@@ -1,9 +1,28 @@
 plugins {
-    id 'java'
+    id 'java-library'
+    id 'maven-publish'
 }
 
-group 'com.github.gunirs.marketigo.api'
-version '1.0-SNAPSHOT'
+group = parent.group + '.api'
+version = parent.version
+archivesBaseName = 'marketigo-api'
+
+def javaVersion = JavaVersion.VERSION_1_8
+
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = project.group
+            artifactId = project.archivesBaseName
+            version = project.version
+
+            from components.java
+        }
+    }
+}
 
 repositories {
     mavenCentral()
