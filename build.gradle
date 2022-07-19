@@ -2,6 +2,8 @@ plugins {
     id 'java'
 }
 
+def contextClass = "com.github.gunirs.marketigo.core.MarketigoContextHolder"
+
 group 'com.github.gunirs.marketigo'
 version '1.0-SNAPSHOT'
 
@@ -9,15 +11,18 @@ repositories {
     mavenCentral()
 }
 
-jar {
-    from subprojects.sourceSets.main.output
+subprojects.each { subproject -> evaluationDependsOn(subproject.path) }
+
+task allJar(type: Jar, dependsOn: subprojects.assemble) {
+    subprojects.each { subproject ->
+        from subproject.configurations.archives.allArtifacts.files.collect {
+            zipTree(it)
+        }
+    }
+
+    manifest {
+        attributes["Context-Class"] = contextClass
+    }
 }
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-}
-
-test {
-    useJUnitPlatform()
-}
+tasks.getByPath(":core:build").dependsOn(allJar)
